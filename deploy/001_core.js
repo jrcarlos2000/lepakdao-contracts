@@ -11,9 +11,11 @@ const {
 
 const deployCore = async () => {
   const { deployerAddr, governorAddr } = await getNamedAccounts();
-  await deployWithConfirmation("DummyToken", ["Test Token", "TEST"]);
-  const cDummyToken = await ethers.getContract("DummyToken");
-  const cLepakDAO = await deployWithConfirmation('LepakDao');
+  const dLepakMembership = await deployWithConfirmation("LepakMembership", ["Lepak SBT", "LPK", "baseuri/"]);
+  const dLepakCore = await deployWithConfirmation("LepakCore",[deployerAddr,dLepakMembership.address]);
+  await deployWithConfirmation("LepakLifestyle",[dLepakCore.address]);
+  // const cDummyToken = await ethers.getContract("DummyToken");
+  // const cLepakDAO = await deployWithConfirmation('LepakDao');
 };
 
 const main = async () => {
