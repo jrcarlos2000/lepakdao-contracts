@@ -16,6 +16,8 @@ contract LepakCore is Ownable{
     using ByteHasher for bytes;
     using SafeMath for uint256;
 
+    event NewMember(address,uint256);
+
     mapping(address => string) public UserInfoURI;
     mapping(address => bool) public usersPaid;
     mapping(address => bool) public isMod;
@@ -66,6 +68,7 @@ contract LepakCore is Ownable{
         // _verifyPoP(infoURI,root,nullifierHash,proof);
         UserInfoURI[msg.sender] = infoURI;
         membership.provide(msg.sender);
+        emit NewMember(msg.sender, membership.currentPriceEth());
     }
 
     function joinWithEth(
@@ -78,6 +81,7 @@ contract LepakCore is Ownable{
         // _verifyPoP(infoURI,root,nullifierHash,proof);
         UserInfoURI[msg.sender] = infoURI;
         membership.provide(msg.sender);
+        emit NewMember(msg.sender, msg.value);
     }
 
     /**
