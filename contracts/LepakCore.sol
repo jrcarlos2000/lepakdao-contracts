@@ -16,22 +16,24 @@ contract LepakCore is Ownable{
     using ByteHasher for bytes;
     using SafeMath for uint256;
 
-    event NewMember(address,uint256);
+    event NewMember(address member,uint256 fee);
+    event NewTeam(uint256 n_members);
+    event ModsUpdated(address[] new_mods);
+    event MembershipPriceUpdated(uint256 new_price);
 
     mapping(address => string) public UserInfoURI;
     mapping(address => bool) public usersPaid;
     mapping(address => bool) public isMod;
-    uint256 public MembershipPrice = 0.01 ether;
     uint8 public modLimit = 5;
-    ILepakMembership immutable membership;
+    ILepakMembership membership;
     address[] public mods;
     
     /**
     ** @dev worldcoin verification
     **/
     
-    IWorldID internal immutable worldId;
-    uint256 internal immutable groupId = 1;
+    IWorldID internal worldId;
+    uint256 internal groupId = 1;
     mapping(uint256 => bool) internal nullifierHashes;
     error InvalidNullifier();
 
@@ -56,6 +58,7 @@ contract LepakCore is Ownable{
         for(uint i=0;i<len;i++){
             usersPaid[_members[i]] = true;
         }
+        emit NewTeam(len);
     }
 
     function joinWithoutEth(
@@ -64,7 +67,7 @@ contract LepakCore is Ownable{
         // uint256 nullifierHash,
         // uint256[8] calldata proof
     ) external {
-        require(usersPaid[msg.sender],"user hasnt paid yet");
+        // require(usersPaid[msg.sender],"user hasnt paid yet");
         // _verifyPoP(infoURI,root,nullifierHash,proof);
         UserInfoURI[msg.sender] = infoURI;
         membership.provide(msg.sender);
@@ -124,11 +127,14 @@ contract LepakCore is Ownable{
             temp[i] = (_newMods[i]);
             isMod[_newMods[i]] = true;
         }
-
         mods = temp;
+
+        emit ModsUpdated(temp);
+
     }
     function setMembershipPrice(uint256 _newPrice) external  onlyModOrOwner {
         membership.setPriceEth(_newPrice);
+        emit MembershipPriceUpdated(_newPrice);
     }
 
     function getMods() external view returns (address[] memory){

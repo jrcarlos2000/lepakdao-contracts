@@ -15,7 +15,7 @@ contract LepakMembership is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable 
     string public baseTokenURI;
     Counters.Counter private _tokenIds;
     uint256[3] public thresholds;
-    uint256 public currentPriceEth = 0.1 ether;
+    uint256 public currentPriceEth = 0.0 ether;
 
     constructor (string memory name , string memory symbol, string memory _baseTokenURI) ERC721 (name,symbol) {
         baseTokenURI = _baseTokenURI;

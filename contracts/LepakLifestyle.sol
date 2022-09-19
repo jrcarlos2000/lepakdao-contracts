@@ -23,8 +23,9 @@ contract LepakLifestyle is Ownable{
     using Counters for Counters.Counter;
     using SafeMath for uint256;
 
-    event ApprovedForStay(address, uint256);
-    event AppliedForStay(address, uint256);
+    event ApprovedForStay(address user, uint256 hh_index);
+    event AppliedForStay(address user, uint256 hh_index);
+    event StayAdded(string hh_uri);
 
     Counters.Counter private stayIds;
     ILepakCore public immutable coreContract;
@@ -51,6 +52,7 @@ contract LepakLifestyle is Ownable{
     function addStay(string memory stayURI, uint256[] calldata _pricesPerRoom) external onlyMod{
         stayIds.increment();
         stays[stayIds.current()] = LepakStay(_pricesPerRoom,stayURI);
+        emit StayAdded(stayURI);
     }
 
 /**
@@ -69,6 +71,7 @@ contract LepakLifestyle is Ownable{
     function approveForStay(uint256 _stayId, address[] calldata _applicants) external onlyMod{
         uint len = _applicants.length;
         for(uint i=0;i<len;i++){
+            require(coreContract.isMember(_applicants[i]), "Applicant is not a member of Lepak");
             stayApprovals[_stayId][_applicants[i]] = true;
             emit ApprovedForStay(_applicants[i],_stayId);
         }

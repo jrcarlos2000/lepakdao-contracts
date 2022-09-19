@@ -2,7 +2,7 @@ require("hardhat");
 const { utils } = require("ethers");
 const { deployments, ethers, getNamedAccounts } = require("hardhat");
 const { parseUnits, formatUnits } = require("ethers").utils;
-const { getTokenAddresses, isFork } = require("../utils/helpers");
+const { getTokenAddresses, isFork, isPolygon, isMumbai } = require("../utils/helpers");
 const {
   deployWithConfirmation,
   withConfirmation,
@@ -14,8 +14,22 @@ const deployCore = async () => {
   const dLepakMembership = await deployWithConfirmation("LepakMembership", ["Lepak SBT", "LPK", "baseuri/"]);
   const dLepakCore = await deployWithConfirmation("LepakCore",[deployerAddr,dLepakMembership.address]);
   await deployWithConfirmation("LepakLifestyle",[dLepakCore.address]);
-  // const cDummyToken = await ethers.getContract("DummyToken");
-  // const cLepakDAO = await deployWithConfirmation('LepakDao');
+  const sGovernor = await ethers.provider.getSigner(governorAddr);
+
+  let cLepakMembership = await ethers.getContractAt('LepakMembership',dLepakMembership.address);
+  let cLepakCore = await ethers.getContractAt('LepakCore',dLepakCore.address);
+
+  console.log("Deployed contracts");
+
+  if(isPolygon || isMumbai){
+    await cLepakMembership.transferOwnership(cLepakCore.address);
+    await withConfirmation(
+      cLepakCore.connect(sGovernor).joinWithoutEth("emerson")
+    );
+  }
+
+  const isMember = await cLepakCore.isMember(governorAddr);
+  console.log(governorAddr, isMember);
 };
 
 const main = async () => {

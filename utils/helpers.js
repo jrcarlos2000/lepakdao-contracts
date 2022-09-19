@@ -3,6 +3,7 @@ const { createFixtureLoader } = require("ethereum-waffle");
 const {addresses} = require("../utils/addresses");
 const forkedNetwork = process.env.NETWORK;
 const isPolygon = hre.network.name === "polygon" || forkedNetwork == "polygon";
+const isMumbai = hre.network.name === "polygonMumbai";
 const isMainnet = hre.network.name === "mainnet" || forkedNetwork == "mainnet";
 const isLocalHost = hre.network.name === "hardhat";
 console.log(hre.network.name);
@@ -36,6 +37,7 @@ const loadFixture = createFixtureLoader(
 module.exports = {
   getTokenAddresses,
   isPolygon,
+  isMumbai,
   isMainnet,
   isLocalHost,
   isFork,
